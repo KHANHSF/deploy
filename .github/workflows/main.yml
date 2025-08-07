@@ -1,0 +1,31 @@
+name: Build Lila (Lichess.org)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v3
+
+    - name: Setup Java + Scala
+      uses: coursier/setup-action@v1
+      with:
+        jvm: temurin:17
+        apps: sbt scala
+
+    - name: Cache Ivy & sbt
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.ivy2/cache
+          ~/.sbt
+        key: ${{ runner.os }}-sbt-${{ hashFiles('**/build.sbt') }}
+
+    - name: Build Lila
+      run: |
+        sbt compile
